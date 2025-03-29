@@ -71,10 +71,7 @@ The system is designed with a modular architecture and consists of the following
    source venv/bin/activate  
    pip install -r requirements.txt
    ```
-
-3. Set up environment variables (see `.env.example`)
-
-4. Run the API:
+3. Run the API:
    ```bash
    python -m api.main
    ```
