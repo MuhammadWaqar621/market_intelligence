@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  # PostgreSQL database
+  postgres:
+    image: postgres:14
+    container_name: market_intelligence_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: market_intelligence
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MongoDB (optional alternative to PostgreSQL)
+  mongodb:
+    image: mongo:5
+    container_name: market_intelligence_mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: market_intelligence
+    volumes:
+      - mongodb_data:/data/db
+    ports:
+      - "27017:27017"
+    restart: unless-stopped
+    command: --wiredTigerCacheSizeGB 1.5
+
+  # API application
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: market_intelligence_api
+    environment:
+      DATABASE_TYPE: postgresql
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/market_intelligence
+      # Uncomment for MongoDB
+      # DATABASE_TYPE: mongodb
+      # DATABASE_URL: mongodb://root:example@mongodb:27017/
+      # MONGODB_DB_NAME: market_intelligence
+      API_HOST: 0.0.0.0
+      API_PORT: 8000
+      API_DEBUG: "True"
+      SCRAPE_DELAY: 3
+      USER_AGENT_ROTATION: "True"
+      PROXY_ENABLED: "False"
+      CONCURRENCY: 4
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./models_cache:/app/models_cache
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  mongodb_data:
