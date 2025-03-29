@@ -61,7 +61,7 @@ The system is designed with a modular architecture and consists of the following
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/market-intelligence.git
+   git clone https://github.com/MuhammadWaqar621/market_intelligence.git
    cd market-intelligence
    ```
 
